@@ -10,10 +10,14 @@ app.use(cors({
 }));
 app.use(express.json());
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.error("MongoDB connection error:", err));
+const connectDB = async()=>{
+  try {
+    const mongoConnection = await mongoose.connect(process.env.MONGO_URI);
+    console.log("Database Connected : ",mongoConnection.connection.host);
+  } catch (error) {
+    console.log("Database Connection Error : ",error);
+  }
+}
 
 // GET records between two dates
 app.get("/api/attendances", async (req, res) => {
@@ -50,6 +54,8 @@ app.get("/",(req,res)=>{
   res.status(200).json({message:"Atendance server running..."})
 })
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server running on port ${process.env.PORT}`);
-});
+connectDB().then(()=>{
+  app.listen(process.env.PORT, () => {
+    console.log(`Server running on port ${process.env.PORT}`);
+  })
+})
